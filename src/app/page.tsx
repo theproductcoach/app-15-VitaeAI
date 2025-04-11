@@ -30,9 +30,9 @@ export default function Home() {
           <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                title: "AI-Powered Customization",
+                title: "AI-Powered Customisation",
                 description:
-                  "Our AI analyzes job descriptions to tailor your application perfectly.",
+                  "Our AI analyses job descriptions to tailor your application perfectly.",
               },
               {
                 title: "Professional Templates",

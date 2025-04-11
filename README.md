@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VitaeAI - AI-Powered Resume and Cover Letter Assistant
+
+VitaeAI is a modern web application that helps job seekers optimise their job applications by generating tailored cover letters and providing resume improvement suggestions based on specific job descriptions.
+
+## Features
+
+- **Resume Upload**: Support for PDF, DOCX, and TXT file formats
+- **PDF Processing**: Built-in PDF reader and text extraction
+- **Job Description Analysis**: Paste any job description for targeted optimisation
+- **AI-Powered Generation**:
+  - Customised cover letters tailored to both your resume and the job description
+  - Detailed resume improvement suggestions
+- **Modern UI**: Clean, responsive interface with real-time processing feedback
 
 ## Getting Started
 
@@ -16,18 +28,19 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Use
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Upload your resume (PDF, DOCX, or TXT format)
+2. Paste the job description you're applying for
+3. Click "Process Documents"
+4. Review your generated cover letter and resume improvement suggestions
 
-## Learn More
+## Technical Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Next.js](https://nextjs.org) - React framework
+- Modern UI components with Tailwind CSS
+- PDF processing capabilities
+- AI integration for document analysis and generation
 
 ## Deploy on Vercel
 
