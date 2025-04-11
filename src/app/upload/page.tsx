@@ -30,6 +30,14 @@ export default function UploadPage() {
   const [generatedContent, setGeneratedContent] =
     useState<GeneratedContent | null>(null);
 
+  const handleReset = () => {
+    setResumeFile(null);
+    setResumeText("");
+    setJobDescription("");
+    setError(null);
+    setGeneratedContent(null);
+  };
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -204,7 +212,16 @@ export default function UploadPage() {
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-4">
+                {(resumeFile || jobDescription || generatedContent) && (
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="px-6 py-2 rounded-lg text-gray-700 font-medium border border-gray-300 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Reset
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={
@@ -253,23 +270,25 @@ export default function UploadPage() {
             <div className="space-y-8">
               {/* Cover Letter Section */}
               <div className="bg-white p-8 rounded-xl shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-xl font-semibold text-black mb-4">
                   Generated Cover Letter
                 </h2>
-                <div className="prose prose-neutral max-w-none text-gray-800">
+                <div className="prose text-black prose-headings:text-black prose-headings:font-semibold prose-p:text-black prose-p:leading-relaxed prose-p:mb-8 [&>p]:mb-8 prose-ul:text-black prose-li:my-1 prose-strong:text-black prose-strong:font-semibold prose-a:text-black max-w-none space-y-8">
                   <ReactMarkdown>{generatedContent.coverLetter}</ReactMarkdown>
                 </div>
               </div>
 
-              {/* Revised Resume Section */}
+              {/* CV Improvement Suggestions Section */}
               {generatedContent.revisedResume && (
                 <div className="bg-white p-8 rounded-xl shadow-sm">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Revised Resume
+                  <h2 className="text-xl font-semibold text-black mb-4">
+                    CV Improvement Suggestions
                   </h2>
-                  <div className="prose prose-neutral max-w-none text-gray-800">
+                  <div className="prose text-black prose-headings:text-black prose-headings:font-semibold prose-p:text-black prose-p:leading-relaxed prose-p:mb-8 [&>p]:mb-8 prose-ul:text-black prose-ul:mt-4 prose-li:my-1 prose-strong:text-black prose-strong:font-semibold prose-a:text-black prose-ol:text-black prose-ol:mt-6 prose-ol:space-y-6 [&>ol>li]:mb-6 max-w-none space-y-8">
                     <ReactMarkdown>
-                      {generatedContent.revisedResume}
+                      {generatedContent.revisedResume.split(
+                        "[START CV FEEDBACK]"
+                      )[1] || generatedContent.revisedResume}
                     </ReactMarkdown>
                   </div>
                 </div>

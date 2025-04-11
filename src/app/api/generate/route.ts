@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     // Truncate long texts to prevent context length errors
     const truncateText = (text: string, maxLength: number = 6000): string => {
       if (text.length > maxLength) {
-        return text.substring(0, 5000) + "... [truncated]";
+        return text.substring(0, 5000) + '... [truncated]';
       }
       return text;
     };
@@ -28,65 +28,84 @@ export async function POST(request: Request) {
     const truncatedResume = truncateText(resumeText);
     const truncatedJobDesc = truncateText(jobDescriptionText);
 
+    // System prompt for consistent formatting and high-quality outputs
     const systemPrompt = `You are an expert career coach and professional resume writer with extensive experience in tailoring resumes and writing compelling cover letters. 
 Your task is to help job seekers by:
 1. Creating a persuasive cover letter that connects their experience to the job requirements
 2. Suggesting strategic improvements to their resume to better align with the job description
 
-Format your responses in clear sections using markdown.`;
+Format your responses in clear sections using markdown.
+Use double line breaks between paragraphs for better readability.
+For lists and bullet points, add a line break before and after the list.`;
 
-    const userPrompt = `Please help tailor the following resume to the job description and create a compelling cover letter.
+    // Updated user prompt with delimiter and recommendations instead of rewrites
+    const userPrompt = `Please help tailor the following CV to the job description and write a compelling cover letter.
 
 Job Description:
 ${truncatedJobDesc}
 
-Current Resume:
+Current CV:
 ${truncatedResume}
 
-Your response must be formatted using the following delimiters exactly:
+Your response must use the following format and delimiters exactly:
 
 [START COVER LETTER]
 Your markdown-formatted cover letter here
 [END COVER LETTER]
 
-[START REVISED RESUME]
-Your markdown-formatted revised resume here
-[END REVISED RESUME]
+[START CV FEEDBACK]
+Begin with a brief introduction paragraph.
 
-Guidelines for each section:
+Key recommendations:
 
-1. The Cover Letter should:
-- Open with a strong hook, but keep the tone human and conversational
+1. First suggestion here...
+
+2. Second suggestion here...
+
+3. Third suggestion here...
+
+(Continue with numbered suggestions, using double line breaks between each point)
+[END CV FEEDBACK]
+
+Cover Letter guidance:
+- Be direct and warm, using natural British English
 - Mention specific relevant experience
-- Show alignment with the job/company
-- End with a clear, warm call to action
+- Show alignment with the company or team culture
+- Close with a clear, friendly call to action
 
-2. The Revised Resume should:
-- Use markdown formatting with headings, bullet points, bold roles etc.
-- Reorder and reword entries to better match the job description
-- Emphasise keywords and quantifiable impact
-
-Please output both sections using only markdown.`;
+CV Feedback guidance:
+- Format each suggestion as a numbered point
+- Add double line breaks between each point
+- Start with a brief introduction
+- Keep suggestions clear and actionable
+- Focus on specific improvements that align with the job requirements`;
 
     try {
       const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: userPrompt },
         ],
         temperature: 0.7,
         max_tokens: 2500,
       });
 
       const fullResponse = completion.choices[0].message.content || '';
-      console.log("Raw GPT response:", fullResponse);
+      console.log('Raw GPT response:', fullResponse);
 
-      const coverLetterMatch = fullResponse.match(/\[START COVER LETTER\]([\s\S]*?)\[END COVER LETTER\]/);
-      const resumeMatch = fullResponse.match(/\[START REVISED RESUME\]([\s\S]*?)\[END REVISED RESUME\]/);
+      let coverLetter = '';
+      let revisedResume = '';
 
-      const coverLetter = coverLetterMatch?.[1]?.trim() || '';
-      const revisedResume = resumeMatch?.[1]?.trim() || '';
+      const matchCover = fullResponse.match(/\[START COVER LETTER\]([\s\S]*?)\[END COVER LETTER\]/);
+      const matchResume = fullResponse.match(/\[START CV FEEDBACK\]([\s\S]*?)\[END CV FEEDBACK\]/);
+
+      if (matchCover) {
+        coverLetter = matchCover[1].trim();
+      }
+      if (matchResume) {
+        revisedResume = matchResume[1].trim();
+      }
 
       return NextResponse.json({
         coverLetter,
