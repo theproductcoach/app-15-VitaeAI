@@ -131,13 +131,13 @@ export default function UploadPage() {
         Upload Your Resume
       </label>
       <div
-        className={`relative border-2 border-dashed rounded-lg p-6 ${
+        className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-200 ${
           dragActive.resume
-            ? "border-blue-500 bg-blue-50"
+            ? "border-teal-500 bg-teal-50"
             : resumeFile
-            ? "border-green-500 bg-green-50"
-            : "border-gray-300 hover:border-gray-400"
-        } transition-colors duration-200`}
+            ? "border-teal-500 bg-teal-50/50"
+            : "border-gray-300 hover:border-teal-400 hover:bg-gray-50"
+        }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -152,7 +152,9 @@ export default function UploadPage() {
         <div className="text-center">
           <div className="text-gray-600">
             {resumeFile ? (
-              <span className="text-green-600">{resumeFile.name}</span>
+              <span className="text-teal-600 font-medium">
+                {resumeFile.name}
+              </span>
             ) : (
               <>
                 <span className="font-medium">Drop your file here</span>
@@ -160,11 +162,12 @@ export default function UploadPage() {
               </>
             )}
           </div>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-2 text-sm text-gray-500">
             Supports PDF, DOCX, and TXT files
           </p>
         </div>
       </div>
+
       {resumeFile?.type === "application/pdf" && (
         <PdfReaderClient
           file={resumeFile}
@@ -178,17 +181,17 @@ export default function UploadPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-16 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto py-12">
-          <div className="bg-white p-8 rounded-xl shadow-sm mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl mb-8">
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-8">
               Upload Your Documents
             </h1>
             <form onSubmit={handleSubmit} className="space-y-6">
               <UploadBox />
 
               {error && (
-                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                <div className="text-red-600 text-sm bg-red-50 p-4 rounded-xl border border-red-100">
                   {error}
                 </div>
               )}
@@ -203,7 +206,7 @@ export default function UploadPage() {
                 <textarea
                   id="jobDescription"
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                  className="w-full px-4 py-3 text-black bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow duration-200"
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   placeholder="Paste the job description here..."
@@ -215,7 +218,7 @@ export default function UploadPage() {
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="px-6 py-2 rounded-lg text-gray-700 font-medium border border-gray-300 hover:bg-gray-50 transition-colors duration-200"
+                    className="px-6 py-2 rounded-xl text-gray-700 font-medium border border-gray-300 hover:bg-gray-50 transition-all duration-200"
                   >
                     Reset
                   </button>
@@ -225,11 +228,11 @@ export default function UploadPage() {
                   disabled={
                     isProcessing || !resumeFile || !jobDescription.trim()
                   }
-                  className={`px-6 py-2 rounded-lg text-white font-medium ${
+                  className={`px-8 py-3 rounded-xl font-medium transition-all duration-200 ${
                     isProcessing || !resumeFile || !jobDescription.trim()
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  } transition-colors duration-200`}
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "text-white bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 hover:scale-105 hover:shadow-lg"
+                  }`}
                 >
                   {isProcessing ? (
                     <div className="flex items-center space-x-2">
@@ -263,34 +266,32 @@ export default function UploadPage() {
             </form>
           </div>
 
-          {/* Render generated content using ReactMarkdown */}
+          {/* Generated Content */}
           {generatedContent && (
             <div className="space-y-8">
               {/* Cover Letter Section */}
-              <div className="bg-white p-8 rounded-xl shadow-sm">
-                <h2 className="text-xl font-semibold text-black mb-4">
+              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Generated Cover Letter
                 </h2>
-                <div className="prose text-black prose-headings:text-black prose-headings:font-semibold prose-p:text-black prose-p:leading-relaxed prose-p:mb-8 [&>p]:mb-8 prose-ul:text-black prose-li:my-1 prose-strong:text-black prose-strong:font-semibold prose-a:text-black max-w-none space-y-8">
+                <div className="prose text-black prose-headings:text-black prose-headings:font-semibold prose-p:text-black prose-p:leading-relaxed prose-p:mb-8 [&>p]:mb-8 prose-ul:text-black prose-ul:mt-4 prose-li:my-1 prose-strong:text-black prose-strong:font-semibold prose-a:text-teal-600 max-w-none space-y-8">
                   <ReactMarkdown>{generatedContent.coverLetter}</ReactMarkdown>
                 </div>
               </div>
 
-              {/* CV Improvement Suggestions Section */}
-              {generatedContent.revisedResume && (
-                <div className="bg-white p-8 rounded-xl shadow-sm">
-                  <h2 className="text-xl font-semibold text-black mb-4">
-                    CV Improvement Suggestions
-                  </h2>
-                  <div className="prose text-black prose-headings:text-black prose-headings:font-semibold prose-p:text-black prose-p:leading-relaxed prose-p:mb-8 [&>p]:mb-8 prose-ul:text-black prose-ul:mt-4 prose-li:my-1 prose-strong:text-black prose-strong:font-semibold prose-a:text-black prose-ol:text-black prose-ol:mt-6 prose-ol:space-y-6 [&>ol>li]:mb-6 max-w-none space-y-8">
-                    <ReactMarkdown>
-                      {generatedContent.revisedResume.split(
-                        "[START CV FEEDBACK]"
-                      )[1] || generatedContent.revisedResume}
-                    </ReactMarkdown>
-                  </div>
+              {/* CV Improvement Suggestions */}
+              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  CV Improvement Suggestions
+                </h2>
+                <div className="prose text-black prose-headings:text-black prose-headings:font-semibold prose-p:text-black prose-p:leading-relaxed prose-p:mb-8 [&>p]:mb-8 prose-ul:text-black prose-ul:mt-4 prose-li:my-1 prose-strong:text-black prose-strong:font-semibold prose-a:text-teal-600 prose-ol:text-black prose-ol:mt-6 prose-ol:space-y-6 [&>ol>li]:mb-6 max-w-none space-y-8">
+                  <ReactMarkdown>
+                    {generatedContent.revisedResume.split(
+                      "[START CV FEEDBACK]"
+                    )[1] || generatedContent.revisedResume}
+                  </ReactMarkdown>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>

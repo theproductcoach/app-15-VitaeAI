@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "VitaeAI",
   description: "Tailor your resume and cover letter in seconds with AI",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.png",
   },
 };
 
