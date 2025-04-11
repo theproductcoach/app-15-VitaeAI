@@ -1,3 +1,5 @@
+// UploadPage.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -5,8 +7,8 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Navbar from "../components/Navbar";
 import { extractTextFromFile } from "../utils/fileProcessing";
+import ReactMarkdown from "react-markdown";
 
-// Dynamically import PdfReaderClient with SSR disabled
 const PdfReaderClient = dynamic(
   () => import("@/app/components/PdfReaderClient"),
   { ssr: false }
@@ -19,11 +21,9 @@ interface GeneratedContent {
 
 export default function UploadPage() {
   const router = useRouter();
-  const [dragActive, setDragActive] = useState<{ resume: boolean }>({
-    resume: false,
-  });
+  const [dragActive, setDragActive] = useState({ resume: false });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeText, setResumeText] = useState<string>("");
+  const [resumeText, setResumeText] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,11 +46,11 @@ export default function UploadPage() {
     setDragActive({ resume: false });
     setError(null);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+    if (e.dataTransfer.files?.[0]) {
       const file = e.dataTransfer.files[0];
       if (validateFileType(file)) {
         setResumeFile(file);
-        setResumeText(""); // Clear previous resume text
+        setResumeText("");
       } else {
         setError("Please upload a PDF, DOCX, or TXT file.");
       }
@@ -67,17 +67,13 @@ export default function UploadPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
     setError(null);
-
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (validateFileType(file)) {
-        setResumeFile(file);
-        setResumeText(""); // Clear previous resume text
-      } else {
-        setError("Please upload a PDF, DOCX, or TXT file.");
-      }
+    const file = e.target.files?.[0];
+    if (file && validateFileType(file)) {
+      setResumeFile(file);
+      setResumeText("");
+    } else {
+      setError("Please upload a PDF, DOCX, or TXT file.");
     }
   };
 
@@ -92,20 +88,16 @@ export default function UploadPage() {
         throw new Error("Please provide both a resume and job description.");
       }
 
-      // For non-PDF files, extract text first
       if (resumeFile.type !== "application/pdf") {
         const extractedText = await extractTextFromFile(resumeFile);
         setResumeText(extractedText);
       }
 
-      // Make API call to generate content
       const response = await fetch("/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          resumeText: resumeText,
+          resumeText,
           jobDescriptionText: jobDescription,
         }),
       });
@@ -116,6 +108,7 @@ export default function UploadPage() {
       }
 
       const data = await response.json();
+      console.log("Generated content:", data);
       setGeneratedContent(data);
     } catch (err) {
       setError(
@@ -166,8 +159,6 @@ export default function UploadPage() {
           </p>
         </div>
       </div>
-
-      {/* Render PDF Reader for PDF files */}
       {resumeFile?.type === "application/pdf" && (
         <PdfReaderClient
           file={resumeFile}
@@ -219,13 +210,11 @@ export default function UploadPage() {
                   disabled={
                     isProcessing || !resumeFile || !jobDescription.trim()
                   }
-                  className={`px-6 py-2 rounded-lg text-white font-medium
-                    ${
-                      isProcessing || !resumeFile || !jobDescription.trim()
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                    }
-                    transition-colors duration-200`}
+                  className={`px-6 py-2 rounded-lg text-white font-medium ${
+                    isProcessing || !resumeFile || !jobDescription.trim()
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  } transition-colors duration-200`}
                 >
                   {isProcessing ? (
                     <div className="flex items-center space-x-2">
@@ -259,26 +248,32 @@ export default function UploadPage() {
             </form>
           </div>
 
-          {/* Generated Content Display */}
+          {/* Render generated content using ReactMarkdown */}
           {generatedContent && (
             <div className="space-y-8">
+              {/* Cover Letter Section */}
               <div className="bg-white p-8 rounded-xl shadow-sm">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Generated Cover Letter
                 </h2>
-                <div className="prose max-w-none whitespace-pre-wrap text-gray-700 leading-relaxed">
-                  {generatedContent.coverLetter}
+                <div className="prose prose-neutral max-w-none text-gray-800">
+                  <ReactMarkdown>{generatedContent.coverLetter}</ReactMarkdown>
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-xl shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Revised Resume
-                </h2>
-                <div className="prose max-w-none whitespace-pre-wrap text-gray-700 leading-relaxed">
-                  {generatedContent.revisedResume}
+              {/* Revised Resume Section */}
+              {generatedContent.revisedResume && (
+                <div className="bg-white p-8 rounded-xl shadow-sm">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Revised Resume
+                  </h2>
+                  <div className="prose prose-neutral max-w-none text-gray-800">
+                    <ReactMarkdown>
+                      {generatedContent.revisedResume}
+                    </ReactMarkdown>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>

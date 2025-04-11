@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     }
 
     // Truncate long texts to prevent context length errors
-    // Each text is limited to 6000 chars (~1500 tokens) to ensure total stays within model limits
     const truncateText = (text: string, maxLength: number = 6000): string => {
       if (text.length > maxLength) {
         return text.substring(0, 5000) + "... [truncated]";
@@ -29,7 +28,6 @@ export async function POST(request: Request) {
     const truncatedResume = truncateText(resumeText);
     const truncatedJobDesc = truncateText(jobDescriptionText);
 
-    // System prompt for consistent formatting and high-quality outputs
     const systemPrompt = `You are an expert career coach and professional resume writer with extensive experience in tailoring resumes and writing compelling cover letters. 
 Your task is to help job seekers by:
 1. Creating a persuasive cover letter that connects their experience to the job requirements
@@ -37,7 +35,6 @@ Your task is to help job seekers by:
 
 Format your responses in clear sections using markdown.`;
 
-    // User prompt with specific instructions for both outputs
     const userPrompt = `Please help tailor the following resume to the job description and create a compelling cover letter.
 
 Job Description:
@@ -46,62 +43,67 @@ ${truncatedJobDesc}
 Current Resume:
 ${truncatedResume}
 
-Please provide two separate outputs:
+Your response must be formatted using the following delimiters exactly:
 
-1. A tailored cover letter that:
-- Opens with a strong hook
-- Connects specific experiences from the resume to key job requirements
-- Demonstrates enthusiasm and cultural fit
-- Closes with a clear call to action
+[START COVER LETTER]
+Your markdown-formatted cover letter here
+[END COVER LETTER]
 
-2. A revised version of the resume that:
-- Reorders and rephrases points to better match job requirements
-- Uses relevant keywords from the job description
-- Quantifies achievements where possible
-- Maintains all truthful information from the original resume
+[START REVISED RESUME]
+Your markdown-formatted revised resume here
+[END REVISED RESUME]
 
-Format both outputs in markdown.`;
+Guidelines for each section:
+
+1. The Cover Letter should:
+- Open with a strong hook, but keep the tone human and conversational
+- Mention specific relevant experience
+- Show alignment with the job/company
+- End with a clear, warm call to action
+
+2. The Revised Resume should:
+- Use markdown formatting with headings, bullet points, bold roles etc.
+- Reorder and reword entries to better match the job description
+- Emphasise keywords and quantifiable impact
+
+Please output both sections using only markdown.`;
 
     try {
-      // Make the API call to OpenAI
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4', // Fallback to gpt-3.5-turbo if gpt-4 is not available
+        model: 'gpt-4',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7, // Balance between creativity and consistency
-        max_tokens: 2500, // Adjust based on your needs
+        temperature: 0.7,
+        max_tokens: 2500,
       });
 
-      // Extract and split the response into cover letter and resume
       const fullResponse = completion.choices[0].message.content || '';
-      
-      // Split the response into sections (assuming markdown formatting)
-      const sections = fullResponse.split(/(?=\d\. )/); // Split on numbered sections
-      const coverLetter = sections[1]?.replace('1. ', '').trim() || '';
-      const revisedResume = sections[2]?.replace('2. ', '').trim() || '';
+      console.log("Raw GPT response:", fullResponse);
+
+      const coverLetterMatch = fullResponse.match(/\[START COVER LETTER\]([\s\S]*?)\[END COVER LETTER\]/);
+      const resumeMatch = fullResponse.match(/\[START REVISED RESUME\]([\s\S]*?)\[END REVISED RESUME\]/);
+
+      const coverLetter = coverLetterMatch?.[1]?.trim() || '';
+      const revisedResume = resumeMatch?.[1]?.trim() || '';
 
       return NextResponse.json({
         coverLetter,
         revisedResume,
       });
     } catch (error) {
-      // Log the full error for debugging
       console.error('OpenAI API Error:', error);
-      
-      // Return the actual error message
       return NextResponse.json(
         { error: error instanceof Error ? error.message : 'An unexpected error occurred with the OpenAI API' },
         { status: 500 }
       );
     }
   } catch (error) {
-    // Log outer errors (parsing, validation, etc)
     console.error('Request processing error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to process request' },
       { status: 500 }
     );
   }
-} 
+}
