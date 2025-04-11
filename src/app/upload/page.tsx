@@ -3,7 +3,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Navbar from "../components/Navbar";
 import { extractTextFromFile } from "../utils/fileProcessing";
@@ -20,7 +19,6 @@ interface GeneratedContent {
 }
 
 export default function UploadPage() {
-  const router = useRouter();
   const [dragActive, setDragActive] = useState({ resume: false });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState("");

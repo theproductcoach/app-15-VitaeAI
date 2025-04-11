@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import * as PDFJS from "pdfjs-dist";
 import { loadPdfWorker } from "../utils/pdfWorkerLoader";
-
- // Make sure this exists and returns a Blob URL
+import { TextItem } from "pdfjs-dist/types/src/display/api";
 
 interface PdfReaderClientProps {
   file: File;
@@ -41,7 +40,7 @@ export default function PdfReaderClient({
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           const pageText = textContent.items
-            .map((item: any) => item.str)
+            .map((item) => (item as TextItem).str || "")
             .join(" ");
           fullText += pageText + "\n";
         }
